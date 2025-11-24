@@ -18,7 +18,6 @@ namespace MessageBoardApp.Infrastructure.Repositories
 
         public User InsertUser(User user) 
         { 
-            user.UserId = _userIdCounter++;
             _users.Add(user);
             return user;
         }

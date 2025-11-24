@@ -27,8 +27,7 @@ namespace MessageBoardApp.Presentation
                 usersRepository,
                 advertisementsRepository,
                 deliveryServiceAdapter,
-                searchEngine,
-                geoServiceAPI
+                searchEngine
             );
 
             Console.WriteLine("=== ДЕМОНСТРАЦИЯ РЕГИСТРАЦИИ ПОЛЬЗОВАТЕЛЯ ===\n");
@@ -93,7 +92,7 @@ namespace MessageBoardApp.Presentation
             Console.WriteLine("== Этап 2: Создание второго объявления ==");
             Console.WriteLine("Продавец: Нажимает 'Добавить объявление'");
             var ad2Values = new List<string> { "Планшет iPad", "Планшет с чехлом и защитной пленкой", "42000" };
-            var advertisement2 = facade.CreateAdvertisment(sellerId, ad2Values);
+            facade.CreateAdvertisment(sellerId, ad2Values);
             Console.WriteLine();
 
             Console.WriteLine("== Этап 3: Просмотр своих объявлений ==");
@@ -107,13 +106,15 @@ namespace MessageBoardApp.Presentation
             Console.WriteLine();
 
             Console.WriteLine("\n\n=== ДЕМОНСТРАЦИЯ ОФОРМЛЕНИЯ ЗАКАЗА ===\n");
-
-            var buyer = new User { UserId = 1, Name = "Петр Иванов", Email = "buyer@example.com" };
-            var advertisement = new Advertisement { Id = 101, Name = "Ноутбук", Cost = 50000, UserId = 2 };
+            
+            var buyer = facade.CreateUser(new List<string>
+            {
+                "Петр Иванов", "buyer@example.com", "SecurePassword123", "Москва, ул. Ленина, д. 11" 
+            });
 
             Console.WriteLine("== Этап 1: Создание заказа ==");
             Console.WriteLine("UI: Покупатель нажимает 'Оформить заказ'");
-            var order = facade.CreateOrder(buyer.UserId, advertisement.Id);
+            var order = facade.CreateOrder(buyer.UserId, advertisement1.Id);
             Console.WriteLine();
 
             Console.WriteLine("== Этап 2: Выбор способа доставки ==");

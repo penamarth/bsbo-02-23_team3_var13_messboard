@@ -14,21 +14,18 @@ namespace MessageBoardApp.Application
         private readonly IAdvertisementsRepository _advertisementsRepository;
         private readonly IDeliveryServiceAdapter _deliveryServiceAdapter;
         private readonly SearchEngine _searchEngine;
-        private readonly GeoServiceAPI _geoServiceAPI;
         private Dictionary<uint, Order> _orders = new Dictionary<uint, Order>();
 
         public MessageBoardFacade(
             IUsersRepository usersRepository, 
             IAdvertisementsRepository advertisementsRepository, 
             IDeliveryServiceAdapter deliveryServiceAdapter,
-            SearchEngine searchEngine,
-            GeoServiceAPI geoServiceAPI)
+            SearchEngine searchEngine)
         {
             _usersRepository = usersRepository;
             _advertisementsRepository = advertisementsRepository;
             _deliveryServiceAdapter = deliveryServiceAdapter;
             _searchEngine = searchEngine;
-            _geoServiceAPI = geoServiceAPI;
         }
 
         public List<Advertisement> GetUserAdvertisments(uint userId) 
@@ -98,14 +95,7 @@ namespace MessageBoardApp.Application
             return createdAdvertisement;
         }
 
-        public Advertisement UpdateAdvertisment(uint userId, uint advertismentId, List<string> values) { return null; }
-        public void DeleteAdvertisment(uint userId, uint advertismentId) { }
-        public List<Advertisement> GetAllAdvertisments() 
-        { 
-            return _advertisementsRepository.FindAll();
-        }
-
-        public List<Advertisement> Search(string query) { return _searchEngine.Search(query); }
+        public List<Advertisement> Search(string query) => _searchEngine.Search(query); 
 
         public void AddToFavorites(uint userId, uint advertisementId)
         {
@@ -260,7 +250,5 @@ namespace MessageBoardApp.Application
             return createdUser;
         }
 
-        public User LoadProfile(uint userId) { return _usersRepository.FindById(userId); }
-        public User UpdateProfile(uint userId, List<string> values) { return null; }
     }
 }

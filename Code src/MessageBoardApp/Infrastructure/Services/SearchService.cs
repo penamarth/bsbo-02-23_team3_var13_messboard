@@ -15,7 +15,15 @@ namespace MessageBoardApp.Infrastructure.Services
 
         public List<Advertisement> Search(string query)
         {
-            return new List<Advertisement>();
+            var results =  new List<Advertisement>();
+
+            foreach (var ads in _database.FindAllAdvertisements())
+            {
+                if (ads.Name.Split(' ').Any(t => t == query))
+                    results.Add(ads);
+            }
+            
+            return results;
         }
     }
 }
