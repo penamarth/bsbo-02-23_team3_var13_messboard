@@ -20,7 +20,7 @@ namespace MessageBoardApp.Infrastructure.Adapters
             quote.Name = $"Delivery Service {serviceId}";
             quote.Type = "Express";
             quote.Cost = 150.0f;
-            quote.Status = "Available";
+            quote.Status = "Доступно";
             return quote;
         }
 
@@ -28,10 +28,10 @@ namespace MessageBoardApp.Infrastructure.Adapters
         {
             Console.WriteLine($"    DeliveryServiceAdapter: ProcessPayment(orderId: {orderId})");
             var quote = _orderServiceAPI.ProcessPayment(orderId);
-            quote.Name = "Payment Processed";
+            quote.Name = "Обработка платежа";
             quote.Type = "Paid";
             quote.Cost = 250.0f;
-            quote.Status = "Completed";
+            quote.Status = "Одобрено";
             return quote;
         }
     }

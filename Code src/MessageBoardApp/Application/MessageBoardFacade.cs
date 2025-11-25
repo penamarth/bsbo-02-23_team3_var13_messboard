@@ -35,14 +35,14 @@ namespace MessageBoardApp.Application
             var user = _usersRepository.FindById(userId);
             if (user == null)
             {
-                Console.WriteLine($"    User not found");
+                Console.WriteLine($"    Пользователь не найден");
                 return new List<Advertisement>();
             }
 
-            Console.WriteLine($"    Getting advertisementIds from user");
+            Console.WriteLine($"    Получение объявлений пользователя");
             var advertisementIds = user.AdvertisementIds;
 
-            Console.WriteLine($"    Retrieving {advertisementIds.Count} advertisements");
+            Console.WriteLine($"    Получено {advertisementIds.Count} объявлений");
             var advertisements = new List<Advertisement>();
             foreach (var id in advertisementIds)
             {
@@ -63,7 +63,7 @@ namespace MessageBoardApp.Application
             var user = _usersRepository.FindById(userId);
             if (user == null)
             {
-                Console.WriteLine($"    User not found");
+                Console.WriteLine($"    Пользователь не найден");
                 return null;
             }
 
@@ -81,15 +81,15 @@ namespace MessageBoardApp.Application
                 Media = new List<byte[]>()
             };
 
-            Console.WriteLine($"    Calling repository to create advertisement");
+            Console.WriteLine($"    Вызов репозитория для создание объявления");
             var createdAdvertisement = _advertisementsRepository.Create(newAdvertisement);
 
             if (createdAdvertisement != null)
             {
-                Console.WriteLine($"    Appending advertisement ID to user");
+                Console.WriteLine($"    Добавление ID объявления пользователю");
                 user.AdvertisementIds.Add(createdAdvertisement.Id);
                 _usersRepository.Update(user);
-                Console.WriteLine($"    Success: Advertisement '{createdAdvertisement.Name}' created with ID: {createdAdvertisement.Id}");
+                Console.WriteLine($"    Успех: Объявление '{createdAdvertisement.Name}' создано с ID: {createdAdvertisement.Id}");
             }
 
             return createdAdvertisement;
@@ -104,22 +104,22 @@ namespace MessageBoardApp.Application
             var user = _usersRepository.FindById(userId);
             if (user == null)
             {
-                Console.WriteLine($"    User not found");
+                Console.WriteLine($"    Пользователь не найден");
                 return;
             }
 
-            Console.WriteLine($"    Adding advertisementId to user.FavouriteIds");
+            Console.WriteLine($"    Добавление advertisementId к user.FavouriteIds");
             user.FavouriteIds.Add(advertisementId);
             _usersRepository.Update(user);
 
             var advertisement = _advertisementsRepository.FindById(advertisementId);
             if (advertisement != null)
             {
-                Console.WriteLine($"    Attaching user as observer to advertisement");
+                Console.WriteLine($"    Добавлание пользователя в наблюдатели за объявлением");
                 advertisement.Attach(user);
             }
 
-            Console.WriteLine($"    Success: Advertisement added to favorites");
+            Console.WriteLine($"    Успех: объявление добавлено в избранные");
         }
 
         public void RemoveFromFavorites(uint userId, uint advertisementId)
@@ -129,22 +129,22 @@ namespace MessageBoardApp.Application
             var user = _usersRepository.FindById(userId);
             if (user == null)
             {
-                Console.WriteLine($"    User not found");
+                Console.WriteLine($"    Пользователь не найден");
                 return;
             }
 
-            Console.WriteLine($"    Removing advertisementId from user.FavouriteIds");
+            Console.WriteLine($"    Удаление advertisementId из user.FavouriteIds");
             user.FavouriteIds.Remove(advertisementId);
             _usersRepository.Update(user);
 
             var advertisement = _advertisementsRepository.FindById(advertisementId);
             if (advertisement != null)
             {
-                Console.WriteLine($"    Detaching user from advertisement");
+                Console.WriteLine($"    Отписка пользователя от объявления");
                 advertisement.Detach(user);
             }
 
-            Console.WriteLine($"    Success: Advertisement removed from favorites");
+            Console.WriteLine($"    Успех: объявление удалено из избранных");
         }
 
         public List<Advertisement> GetFavorites(uint userId)
@@ -154,14 +154,14 @@ namespace MessageBoardApp.Application
             var user = _usersRepository.FindById(userId);
             if (user == null)
             {
-                Console.WriteLine($"    User not found");
+                Console.WriteLine($"    Пользователь не найден");
                 return new List<Advertisement>();
             }
 
-            Console.WriteLine($"    Getting favouriteIds from user");
+            Console.WriteLine($"    Получение favouriteIds из пользователя");
             var favouriteIds = user.FavouriteIds;
 
-            Console.WriteLine($"    Retrieving {favouriteIds.Count} favorite advertisements");
+            Console.WriteLine($"    Получено {favouriteIds.Count} избранных объявлений");
             var favouriteAdvertisements = new List<Advertisement>();
             foreach (var id in favouriteIds)
             {
@@ -244,7 +244,7 @@ namespace MessageBoardApp.Application
 
             if (createdUser != null)
             {
-                Console.WriteLine($"    Success: Пользователь {createdUser.Email} успешно создан (ID: {createdUser.UserId})");
+                Console.WriteLine($"    Успех: Пользователь {createdUser.Email} успешно создан (ID: {createdUser.UserId})");
             }
 
             return createdUser;
