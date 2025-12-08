@@ -23,7 +23,7 @@ namespace MessageBoardApp.Infrastructure.Repositories
 
         public User Create(User user) 
         { 
-            Console.WriteLine($"      UsersRepository: Create(userId: {user.UserId}, email: {user.Email})");
+            Console.WriteLine($"      UsersRepository: Create(user(userId: {user.UserId}, email: {user.Email}, ...))");
             return _database.InsertUser(user); 
         }
 

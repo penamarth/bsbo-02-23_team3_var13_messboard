@@ -28,7 +28,7 @@ namespace MessageBoardApp.Infrastructure.Repositories
 
         public Advertisement Create(Advertisement advertisement) 
         { 
-            Console.WriteLine($"      AdvertisementsRepository: Create(advertisementId: {advertisement.Id}, name: {advertisement.Name})");
+            Console.WriteLine($"      AdvertisementsRepository: Create(advertisment(advertisementId: {advertisement.Id}, name: {advertisement.Name}, ...))");
             return _database.InsertAdvertisement(advertisement); 
         }
 

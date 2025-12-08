@@ -21,8 +21,7 @@ namespace MessageBoardApp.Presentation
             var orderServiceAPI = new OrderServiceAPI();
             IDeliveryServiceAdapter deliveryServiceAdapter = new DeliveryServiceAdapter(orderServiceAPI);
             var searchEngine = new SearchEngine(database);
-            var geoServiceAPI = new GeoServiceAPI();
-
+            
             var facade = new MessageBoardFacade(
                 usersRepository,
                 advertisementsRepository,
@@ -50,7 +49,7 @@ namespace MessageBoardApp.Presentation
 
             if (newUser != null)
             {
-                Console.WriteLine($"\nUI: Редирект в личный кабинет");
+                Console.WriteLine($"\nUI: Перенаправление в личный кабинет");
                 Console.WriteLine($"UI: Показывает сообщение об успехе - 'Регистрация успешна!'");
                 Console.WriteLine($"UI: Загружен профиль пользователя:");
                 Console.WriteLine($"  - ID: {newUser.UserId}");
@@ -63,25 +62,26 @@ namespace MessageBoardApp.Presentation
                 Console.WriteLine($"\nUI: Показывает ошибку регистрации");
             }
 
-            Console.WriteLine("\n\n=== ДЕМОНСТРАЦИЯ УПРАВЛЕНИЯ ОБЪЯВЛЕНИЯМИ ===\n");
+
+            Console.WriteLine("\n\n\n=== ДЕМОНСТРАЦИЯ УПРАВЛЕНИЯ ОБЪЯВЛЕНИЯМИ ===\n");
 
             var seller = newUser;
             uint sellerId = seller.UserId;
 
             Console.WriteLine("== Этап 1: Создание первого объявления ==");
-            Console.WriteLine("UI: Продавец: Нажимает 'Добавить объявление'\n");
+            Console.WriteLine("UI: Пользователь: Нажимает 'Добавить объявление'\n");
             var ad1Values = new List<string> { "Смартфон Samsung Galaxy", "Смартфон в хорошем состоянии", "35000" };
             var advertisement1 = facade.CreateAdvertisment(sellerId, ad1Values);
             Console.WriteLine();
 
             Console.WriteLine("== Этап 2: Создание второго объявления ==");
-            Console.WriteLine("UI: Продавец: Нажимает 'Добавить объявление'\n");
+            Console.WriteLine("UI: Пользователь: Нажимает 'Добавить объявление'\n");
             var ad2Values = new List<string> { "Планшет iPad", "Планшет с чехлом и защитной пленкой", "42000" };
             facade.CreateAdvertisment(sellerId, ad2Values);
             Console.WriteLine();
 
             Console.WriteLine("== Этап 3: Просмотр своих объявлений ==");
-            Console.WriteLine("UI: Продавец: Нажимает 'Мои объявления'\n");
+            Console.WriteLine("UI: Пользователь: Нажимает 'Мои объявления'\n");
             var userAdvertisements = facade.GetUserAdvertisments(sellerId);
             Console.WriteLine($"\nUI: Отображение списка объявлений продавца ({userAdvertisements.Count} шт.):");
             foreach (var ad in userAdvertisements)
@@ -89,6 +89,7 @@ namespace MessageBoardApp.Presentation
                 Console.WriteLine($"  - {ad.Name} ({ad.Cost}₽)");
             }
             Console.WriteLine();
+
 
             Console.WriteLine("\n\n=== ДЕМОНСТРАЦИЯ ОФОРМЛЕНИЯ ЗАКАЗА ===\n");
             
@@ -129,7 +130,8 @@ namespace MessageBoardApp.Presentation
             Console.WriteLine($"  - Итого: {receipt.TotalSum}₽");
             Console.WriteLine();
 
-            Console.WriteLine("\n\n=== ДЕМОНСТРАЦИЯ УПРАВЛЕНИЯ ИЗБРАННЫМ ===\n");
+
+            Console.WriteLine("\n\n=== ДЕМОНСТРАЦИЯ УПРАВЛЕНИЯ ИЗБРАННЫМИ ===\n");
 
             buyer = newUser;
             uint buyerId = buyer.UserId;
@@ -170,24 +172,6 @@ namespace MessageBoardApp.Presentation
                 Console.WriteLine($"  - {ad.Name} ({ad.Cost}₽)");
             }
             Console.WriteLine();
-
-            Console.WriteLine("== Этап 4: Удаление из избранного ==");
-            if (favouriteAdvertisements.Count > 0)
-            {
-                Console.WriteLine($"Покупатель: Нажимает 'Удалить из избранного' для '{favouriteAdvertisements[0].Name}'");
-                facade.RemoveFromFavorites(buyerId, favouriteAdvertisements[0].Id);
-                Console.WriteLine("\nUI: Подтверждение удаления\n");
-
-                Console.WriteLine("Покупатель: Проверяет обновленный список избранного");
-                var updatedFavourites = facade.GetFavorites(buyerId);
-                Console.WriteLine($"\nUI: Отображение обновленного списка ({updatedFavourites.Count} шт.):");
-                foreach (var ad in updatedFavourites)
-                {
-                    Console.WriteLine($"  - {ad.Name} ({ad.Cost}₽)");
-                }
-            }
-            Console.WriteLine();
-
         }
     }
 }

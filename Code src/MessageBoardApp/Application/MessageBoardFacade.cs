@@ -14,7 +14,7 @@ namespace MessageBoardApp.Application
         private readonly IAdvertisementsRepository _advertisementsRepository;
         private readonly IDeliveryServiceAdapter _deliveryServiceAdapter;
         private readonly SearchEngine _searchEngine;
-        private Dictionary<uint, Order> _orders = new Dictionary<uint, Order>();
+        private List<Advertisement> _advertisments = new List<Advertisement>();
 
         public MessageBoardFacade(
             IUsersRepository usersRepository, 
@@ -26,6 +26,8 @@ namespace MessageBoardApp.Application
             _advertisementsRepository = advertisementsRepository;
             _deliveryServiceAdapter = deliveryServiceAdapter;
             _searchEngine = searchEngine;
+
+            _advertisments = _advertisementsRepository.FindAll();
         }
 
         public List<Advertisement> GetUserAdvertisments(uint userId) 
@@ -58,7 +60,7 @@ namespace MessageBoardApp.Application
 
         public Advertisement CreateAdvertisment(uint userId, List<string> values) 
         { 
-            Console.WriteLine($"  MessageBoardFacade: CreateAdvertisment(userId: {userId}, values: List<string>)");
+            Console.WriteLine($"  MessageBoardFacade: CreateAdvertisment(userId: {userId}, values: {values})");
 
             var user = _usersRepository.FindById(userId);
             if (user == null)
@@ -89,13 +91,71 @@ namespace MessageBoardApp.Application
                 Console.WriteLine($"    Добавление ID объявления пользователю");
                 user.AdvertisementIds.Add(createdAdvertisement.Id);
                 _usersRepository.Update(user);
+
+                _advertisments.Add(createdAdvertisement);
+
                 Console.WriteLine($"    Успех: Объявление '{createdAdvertisement.Name}' создано с ID: {createdAdvertisement.Id}");
             }
 
             return createdAdvertisement;
         }
 
-        public List<Advertisement> Search(string query) => _searchEngine.Search(query); 
+        public Advertisement UpdateAdvertisment(uint userId, uint advertismentId, List<string> values)
+        {
+            Console.WriteLine($"  MessageBoardFacade: UpdateAdvertisment(userId: {userId}, advertismentId: {advertismentId}, values: {values})");
+
+            var advertisement = _advertisementsRepository.FindById(advertismentId);
+            if (advertisement == null || advertisement.UserId != userId)
+            {
+                Console.WriteLine($"    Объявление не найдено или пользователь не является владельцем");
+                return null;
+            }
+
+            advertisement.Name = values[0];
+            advertisement.Description = values[1];
+            advertisement.Cost = float.Parse(values[2]);
+
+            var updatedAdvertisement = _advertisementsRepository.Update(advertisement);
+
+            var index = _advertisments.FindIndex(a => a.Id == advertismentId);
+            if (index != -1)
+            {
+                _advertisments[index] = updatedAdvertisement;
+            }
+
+            return updatedAdvertisement;
+        }
+
+        public void DeleteAdvertisment(uint userId, uint advertismentId)
+        {
+            Console.WriteLine($"  MessageBoardFacade: DeleteAdvertisment(userId: {userId}, advertismentId: {advertismentId})");
+
+            var advertisement = _advertisementsRepository.FindById(advertismentId);
+            if (advertisement == null || advertisement.UserId != userId)
+            {
+                Console.WriteLine($"    Объявление не найдено или пользователь не является владельцем");
+                return;
+            }
+
+            _advertisementsRepository.Delete(advertisement);
+
+            _advertisments.RemoveAll(a => a.Id == advertismentId);
+
+            var user = _usersRepository.FindById(userId);
+            if (user != null)
+            {
+                user.AdvertisementIds.Remove(advertismentId);
+                _usersRepository.Update(user);
+            }
+        }
+
+        public List<Advertisement> GetAllAdvertisments()
+        {
+            Console.WriteLine($"  MessageBoardFacade: GetAllAdvertisments()");
+            return _advertisments;
+        }
+
+        public List<Advertisement> Search(string query) => _searchEngine.Search(query);
 
         public void AddToFavorites(uint userId, uint advertisementId)
         {
@@ -115,7 +175,7 @@ namespace MessageBoardApp.Application
             var advertisement = _advertisementsRepository.FindById(advertisementId);
             if (advertisement != null)
             {
-                Console.WriteLine($"    Добавлание пользователя в наблюдатели за объявлением");
+                Console.WriteLine($"    Добавление пользователя в наблюдатели за объявлением");
                 advertisement.Attach(user);
             }
 
@@ -182,8 +242,16 @@ namespace MessageBoardApp.Application
             var advertisement = _advertisementsRepository.FindById(advertismentId);
             var user = _usersRepository.FindById(userId);
 
+            if (advertisement == null || user == null)
+            {
+                Console.WriteLine($"    Объявление или пользователь не найдены");
+                return null;
+            }
+
             var order = new Order(user, advertisement);
-            _orders[order.Id] = order;
+
+            user.Orders.Add(order);
+            _usersRepository.Update(user);
 
             return order;
         }
@@ -209,19 +277,28 @@ namespace MessageBoardApp.Application
         {
             Console.WriteLine($"  MessageBoardFacade: GenerateReceipt(userId: {userId}, orderId: {orderId})");
 
-            if (_orders.TryGetValue(orderId, out var order))
+            var user = _usersRepository.FindById(userId);
+            if (user == null)
             {
-                var items = new List<string> { "Product 1" };
-                var receipt = new Receipt(items, 100.0f, order.TotalSum + 100.0f, order.TotalItems);
-                return receipt;
+                Console.WriteLine($"    Пользователь не найден");
+                return null;
             }
 
-            return null;
+            var order = user.Orders.FirstOrDefault(o => o.Id == orderId);
+            if (order == null)
+            {
+                Console.WriteLine($"    Заказ не найден");
+                return null;
+            }
+
+            var items = new List<string> { order.ItemIds.Count > 0 ? $"Товар {order.ItemIds[0]}" : "Товар" };
+            var receipt = new Receipt(items, 100.0f, order.TotalSum + 100.0f, order.TotalItems);
+            return receipt;
         }
 
         public User CreateUser(List<string> values)
         {
-            Console.WriteLine($"  MessageBoardFacade: CreateUser(values: List<string>)");
+            Console.WriteLine($"  MessageBoardFacade: CreateUser(values: {values})");
 
             string name = values[0];
             string email = values[1];
@@ -238,8 +315,6 @@ namespace MessageBoardApp.Application
                 FavouriteIds = new List<uint>(),
                 Orders = new List<Order>()
             };
-
-            Console.WriteLine($"    MessageBoardFacade: Create(User: {newUser.Email})");
             var createdUser = _usersRepository.Create(newUser);
 
             if (createdUser != null)
@@ -250,5 +325,28 @@ namespace MessageBoardApp.Application
             return createdUser;
         }
 
+        public User LoadProfile(uint userId)
+        {
+            Console.WriteLine($"  MessageBoardFacade: LoadProfile(userId: {userId})");
+            return _usersRepository.FindById(userId);
+        }
+
+        public User UpdateProfile(uint userId, List<string> values)
+        {
+            Console.WriteLine($"  MessageBoardFacade: UpdateProfile(userId: {userId}, values: {values})");
+
+            var user = _usersRepository.FindById(userId);
+            if (user == null)
+            {
+                Console.WriteLine($"    Пользователь не найден");
+                return null;
+            }
+
+            user.Name = values[0];
+            user.Email = values[1];
+            user.Location = values[2];
+
+            return _usersRepository.Update(user);
+        }
     }
 }
